@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: worker 
     name: AloneMusic Bot
     env: python
     plan: free
