@@ -8,6 +8,8 @@
 
 import asyncio
 import importlib
+import os
+from aiohttp import web
 
 from pyrogram import idle
 from pytgcalls.exceptions import NoActiveGroupCall
@@ -21,6 +23,22 @@ from AloneMusic.utils.database import get_banned_users, get_gbanned
 from config import BANNED_USERS
 
 
+# ✅ Render HTTP health check server
+async def health_check(request):
+    return web.Response(text="Bot is running!")
+
+
+async def start_web_server():
+    port = int(os.environ.get("PORT", 8080))
+    web_app = web.Application()
+    web_app.router.add_get("/", health_check)
+    runner = web.AppRunner(web_app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    LOGGER("AloneMusic").info(f"✅ Web server started on port {port}")
+
+
 async def init():
     if (
         not config.STRING1
@@ -31,6 +49,10 @@ async def init():
     ):
         LOGGER(__name__).error("Assistant client variables not defined, exiting...")
         exit()
+
+    # ✅ Start web server FIRST (Render needs port binding quickly)
+    await start_web_server()
+
     await sudo()
     try:
         users = await get_gbanned()
@@ -41,6 +63,7 @@ async def init():
             BANNED_USERS.add(user_id)
     except:
         pass
+
     await app.start()
     for all_module in ALL_MODULES:
         importlib.import_module("AloneMusic.plugins" + all_module)
@@ -58,12 +81,12 @@ async def init():
         pass
     await Alone.decorators()
     LOGGER("AloneMusic").info(
-        "ʙᴏᴛ sᴛᴀʀᴛᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ, ɴᴏᴡ ɢɪʙ ʏᴏᴜʀ ɢɪʀʟғʀɪᴇɴᴅ ᴄʜᴜᴛ ɪɴ @TheAloneTeam"
+        "ʙᴏᴛ sᴛᴀʀᴛᴇᴅ sᴜᴄᴄᴇssғᴜʟʟʏ"
     )
     await idle()
     await app.stop()
     await userbot.stop()
-    LOGGER("AloneMusic").info("Stopping 𝚻հҽ 𝚨Łꪮⲛ𝛆 🚩𝗧ε᧘‌ᴍ Bot...")
+    LOGGER("AloneMusic").info("Stopping Bot...")
 
 
 if __name__ == "__main__":
