@@ -1,10 +1,10 @@
 services:
-  - type: worker 
+  - type: worker
     name: AloneMusic Bot
     env: python
     plan: free
     region: oregon
-    buildCommand: pip install --upgrade pip && pip install ".[all]"
+    buildCommand: pip install --upgrade pip && pip install -e . && pip install pyrofork==2.3.69
     startCommand: python3 -m AloneMusic
     autoDeploy: true
     envVars:
